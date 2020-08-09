@@ -117,16 +117,17 @@ Performs the exact same function but also allows
 (defun recursive-widen (p)
   "Replacement of widen that will only pop one (or all if P is not nil) level(s) of visibility."
   (interactive "P")
-  (if (and (buffer-narrowed-p) (or (not recursive-narrow-settings) (not p)))
+  (if (and recursive-narrow-settings (not p))
       (let ((widen-to (pop recursive-narrow-settings)))
 	(narrow-to-region (car widen-to) (cdr widen-to))
 	(recenter))
-    (if (buffer-narrowed-p) (widen))
+    (widen)
     (setq-local recursive-narrow-settings nil)))
 
 ;; handle other WIDEN calls
-(advice-add 'widen :after '(lambda (&rest args)
-			     (setq-local recursive-narrow-settings nil)))
+;; TODO disabled because the emojify-mode calls widen all the time in a save-restriction expression
+;; (advice-add 'widen :after '(lambda (&rest args)
+;; 			     (setq-local recursive-narrow-settings nil)))
 
 
 (global-set-key (kbd "C-x n w") 'recursive-widen)
